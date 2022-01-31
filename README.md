@@ -119,6 +119,22 @@ The project uses a conda virtual env. If you add a package, update `conda.yaml` 
 conda env export > conda.yaml --from-history
 ```
 
+### DVC
+
+Use for data version control
+
+```bash
+# set up
+dvc init
+git commit -m "init dvc"
+
+# add data dir to track
+dvc add data
+git commit -m "track data dir with dvc"
+
+dvc remote add -d az-storage azure://pspassengerkiosk/
+```
+
 ### Other
 
 ![](img/az-architecture.png)

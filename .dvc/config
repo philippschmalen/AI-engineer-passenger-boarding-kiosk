@@ -1,0 +1,4 @@
+[core]
+    remote = az-storage
+['remote "az-storage"']
+    url = azure://pspassengerkiosk/
