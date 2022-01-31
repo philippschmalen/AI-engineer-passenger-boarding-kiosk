@@ -106,7 +106,7 @@ terraform init
 terraform fmt
 terraform validate
 terraform plan
-terraform apply
+terraform apply -auto-approve
 > yes
 terraform destroy
 ```
@@ -132,8 +132,11 @@ git commit -m "init dvc"
 dvc add data
 git commit -m "track data dir with dvc"
 
-dvc remote add -d az-storage azure://pspassengerkiosk/
+dvc remote add -d az-storage azure://pspassengerkiosk
+dvc remote modify --local az-storage connection_string [ADD CONNECTION STRING]
 ```
+
+[How to get connection string](https://github.com/iterative/dvc/issues/2200)
 
 ### Other
 

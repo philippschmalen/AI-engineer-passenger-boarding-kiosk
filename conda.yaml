@@ -13,4 +13,4 @@ dependencies:
   - azure-identity
   - azure-storage-file
   - pip:
-      - dvc==2.9.3
+      - dvc[azure]==2.9.3
