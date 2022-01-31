@@ -1,0 +1,6 @@
+data:
+  faker:
+    seed: 11
+  origin: Frankfurt
+  destination: Salzburg
+  n_records: 5

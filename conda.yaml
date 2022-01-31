@@ -9,8 +9,11 @@ dependencies:
   - jupyterlab
   - black
   - flake8
+  - pyyaml
+  - pandas
   - pre-commit
   - azure-identity
   - azure-storage-file
+  - faker
   - pip:
       - dvc[azure]==2.9.3

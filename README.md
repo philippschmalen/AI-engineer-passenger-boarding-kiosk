@@ -1,27 +1,10 @@
 # AI-powered passenger boarding kiosk
 
+Building a fully automated passenger boarding kiosk with `Azure cognitive services`. I apply best practices with **data version control** with `DVC`, **infrastructure as code** with `Terraform` and ensure code quality with `flake8`, `black` and `pre-commit`.
+
 ## TODO
 
-- [ ] check starter code
-- [ ] DVC to track data in blob storage
-- [ ] use [Faker](https://github.com/joke2k/faker) to get
-
-  * Flight Number UA-123
-  * Carrier Number
-  * Flight Origin
-  * Destination
-  * Flight Date
-  * Flight Time
-  * Gate Number
-  * Boarding Time
-
-- [ ] 5x personal details
-  * First Name
-  * Last Name
-  * Date of Birth
-  * Sex
-  * Seat Number
-  * Face Image - Please use 5 distinct face images, one for each digital ID. One of these face images should be yours. Later in the project, you will perform face verification by comparing the face image on the ID card with the face shown in the 30-second video. Because face verification is done only once, you need to  add your face image to only one ID card.
+* Face Image - Please use 5 distinct face images, one for each digital ID. One of these face images should be yours. Later in the project, you will perform face verification by comparing the face image on the ID card with the face shown in the 30-second video. Because face verification is done only once, you need to  add your face image to only one ID card.
 
 - [ ] fill out drivers license with image editing
 
@@ -73,6 +56,25 @@ pre-commit autoupdate
 terraform init
 ```
 
+### DVC
+
+Use for data version control
+
+```bash
+# set up
+dvc init
+git commit -m "init dvc"
+
+# add data dir to track
+dvc add data
+git commit -m "track data dir with dvc"
+
+dvc remote add -d az-storage azure://dvc
+dvc remote modify --local az-storage connection_string [ADD CONNECTION STRING]
+dvc push
+```
+
+[How to get connection string](https://github.com/iterative/dvc/issues/2200)
 
 
 ---
@@ -119,24 +121,7 @@ The project uses a conda virtual env. If you add a package, update `conda.yaml` 
 conda env export > conda.yaml --from-history
 ```
 
-### DVC
 
-Use for data version control
-
-```bash
-# set up
-dvc init
-git commit -m "init dvc"
-
-# add data dir to track
-dvc add data
-git commit -m "track data dir with dvc"
-
-dvc remote add -d az-storage azure://pspassengerkiosk
-dvc remote modify --local az-storage connection_string [ADD CONNECTION STRING]
-```
-
-[How to get connection string](https://github.com/iterative/dvc/issues/2200)
 
 ### Other
 
