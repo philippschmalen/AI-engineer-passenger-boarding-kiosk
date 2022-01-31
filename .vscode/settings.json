@@ -1,4 +1,5 @@
 {
     "python.terminal.activateEnvInCurrentTerminal": true,
-    "python.defaultInterpreterPath": "C:\\miniconda3\\envs\\az-sandbox\\python.exe"
+    "python.defaultInterpreterPath": "C:\\miniconda3\\envs\\az-sandbox\\python.exe",
+    "cornflakes.linter.executablePath": "C:\\miniconda3\\envs\\az-sandbox\\Scripts\\flake8.exe"
 }

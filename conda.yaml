@@ -1,0 +1,16 @@
+name: az-sandbox
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - azure-storage-blob
+  - jupyterlab
+  - black
+  - flake8
+  - pre-commit
+  - azure-identity
+  - azure-storage-file
+  - pip:
+      - dvc==2.9.3

@@ -3,6 +3,7 @@
 ## TODO
 
 - [ ] check starter code
+- [ ] DVC to track data in blob storage
 - [ ] use [Faker](https://github.com/joke2k/faker) to get
 
   * Flight Number UA-123
@@ -50,7 +51,10 @@ The data comprises the following areas:
 
 ## Getting started
 
-Install required packages: `terraform`, `az cli`, `Anaconda/Miniconda`
+
+Ensure the following: Azure account, `terraform` (added to PATH), `azure cli`, `Anaconda/Miniconda`, successfully logged into Azure with `az login`.
+
+Additionally, you can download the started code [here](https://github.com/udacity/cd0461-building-computer-vision-solutions-with-azure-project-starter).
 
 
 ```bash
@@ -61,10 +65,15 @@ git clone https://github.com/philippschmalen/AI-engineer-passenger-boarding-kios
 conda env create -f conda.yaml
 conda activate az-sandbox
 
-# init pre-commit + hooks
+# set up pre-commit + hooks
 pre-commit install
 pre-commit autoupdate
+
+# set up terraform
+terraform init
 ```
+
+
 
 ---
 
@@ -82,7 +91,35 @@ The kiosk does the following internal processing
 
 * Finally, upload the data (input and validated) to Azure Blob storage
 
-## Architecture
+## Tech
+
+### Libraries
+
+`Faker`
+
+### Infrastructure as code with terraform
+
+To create the necessary resources
+
+```bash
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+> yes
+terraform destroy
+```
+
+### Conda
+
+The project uses a conda virtual env. If you add a package, update `conda.yaml` with
+
+```bash
+conda env export > conda.yaml --from-history
+```
+
+### Other
 
 ![](img/az-architecture.png)
 
@@ -90,4 +127,5 @@ The kiosk does the following internal processing
 
 ## Extensions
 
-* add github action
+- [ ] add tests
+- [ ] add github action
