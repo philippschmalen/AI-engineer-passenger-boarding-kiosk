@@ -1,0 +1,4 @@
+{
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.defaultInterpreterPath": "C:\\miniconda3\\envs\\az-sandbox\\python.exe"
+}
