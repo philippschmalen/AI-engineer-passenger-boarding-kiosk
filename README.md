@@ -4,10 +4,7 @@ Building a fully automated passenger boarding kiosk with `Azure cognitive servic
 
 ## TODO
 
-* Face Image - Please use 5 distinct face images, one for each digital ID. One of these face images should be yours. Later in the project, you will perform face verification by comparing the face image on the ID card with the face shown in the 30-second video. Because face verification is done only once, you need to  add your face image to only one ID card.
-
-- [ ] fill out drivers license with image editing
-
+- [ ]
 
 ---
 
@@ -27,12 +24,13 @@ The data comprises the following areas:
 
 * flight details (flight number, carrier code, departure, destination, date, time, gate, boarding)
 * passenger details (name, birth date, sex, seat, face image)
+* photos taken from https://this-person-does-not-exist.com/en
 
 ![](img/data-overview.png)
 
 ---
 
-## Getting started
+## Get started
 
 
 Ensure the following: Azure account, `terraform` (added to PATH), `azure cli`, `Anaconda/Miniconda`, successfully logged into Azure with `az login`.
@@ -56,9 +54,15 @@ pre-commit autoupdate
 terraform init
 ```
 
+
+### Secrets
+
+Store secrets such as endpoints as environment variables and keys in `.env`, so they can be accessed with `load_dotenv()` and `os.getenv()`.
+
+
 ### DVC
 
-Use for data version control
+Use the following setup for data version control
 
 ```bash
 # set up
@@ -77,6 +81,14 @@ dvc push
 [How to get connection string](https://github.com/iterative/dvc/issues/2200)
 
 
+**DVC Workflow**
+
+```bash
+# adding files to ./data
+dvc add data
+dvc push
+```
+
 ---
 
 
@@ -92,6 +104,78 @@ The kiosk does the following internal processing
 * Additionally, outside of the scope of the kiosk: Perform the lighter detection from carry-on items
 
 * Finally, upload the data (input and validated) to Azure Blob storage
+
+### Create data
+
+I synthesize passenger data with `Faker` and collect portraits from https://this-person-does-not-exist.com/en. The `get_data()` method from `src.utils_data.py` generates personal details and flight details. These are stored in `data/raw/flight_manifest.csv` which uploads to Azure blob storage using terraform, `terraform apply -auto-approve`. Find the details in `main.tf::upload-data-raw` resource.
+
+
+
+### ID documents
+
+Retrieve ID details with `get_id_details: (form_recognizer_client: FormRecognizerClient, input_img: bytes, verbose=False) -> dict`
+
+Example usage as in `main.py`:
+
+```python
+load_dotenv()
+AZURE_FORM_RECOGNIZER_ENDPOINT = os.getenv("AZURE_FORM_RECOGNIZER_ENDPOINT")
+AZURE_FORM_RECOGNIZER_KEY = os.getenv("AZURE_FORM_RECOGNIZER_KEY")
+
+form_recognizer_client = FormRecognizerClient(
+    AZURE_FORM_RECOGNIZER_ENDPOINT, AzureKeyCredential(AZURE_FORM_RECOGNIZER_KEY)
+)
+
+# load img as bytes
+input_img = load_img(filepath="data/raw/id_amybennett.jpg")
+# get id details
+dict_id = get_id_details(form_recognizer_client, input_img)
+```
+
+Here is the output compared to the input:
+
+![](img/id_formrecognizer_match.png)
+
+
+### Boarding pass
+
+To train a customer form recognizer, the text fields have to be labelled using the `form OCR testing tool` (FOTT): https://fott-2-1.azurewebsites.net/
+
+![](img/az-fr-boarding-labelling.png)
+
+Boarding pass and label content link to an azure blob storage:
+
+![](az-fr-boarding-data-upload)
+
+Next, we train a custom model on the labelled documents:
+
+![](img/az-fr-boarding-model-trained.png)
+
+Example usage as in `main.py`:
+
+```python
+# BOARDING PASS
+input_img_boardingpass = load_img(
+    filepath="data/raw/boarding_amybennett.pdf"
+)
+get_url = get_url_boardingpass(
+    input_img_boardingpass,
+    apikey=AZURE_FORM_RECOGNIZER_KEY,
+    endpoint=AZURE_FORM_RECOGNIZER_ENDPOINT,
+    model_id=AZURE_FORM_RECOGNIZER_MODEL_ID,
+)
+dict_boardingpass = get_dict_boardingpass(
+    get_url=get_url, apikey=AZURE_FORM_RECOGNIZER_KEY
+)
+print(dict_boardingpass)
+```
+
+Here is how the output looks like with an example boarding pass:
+
+![](img/boardingpass_formrecognizer_match.png)
+
+
+---
 
 ## Tech
 

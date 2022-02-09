@@ -15,5 +15,7 @@ dependencies:
   - azure-identity
   - azure-storage-file
   - faker
+  - python-dotenv
   - pip:
       - dvc[azure]==2.9.3
+      - azure-ai-formrecognizer==3.1.2

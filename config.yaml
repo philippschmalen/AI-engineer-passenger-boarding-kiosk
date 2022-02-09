@@ -1,6 +1,17 @@
 data:
+  n_records: 5
   faker:
     seed: 11
-  origin: Frankfurt
-  destination: Salzburg
-  n_records: 5
+  flight:
+    number: "LH-398"
+    origin: Frankfurt
+    destination: Salzburg
+    date: "2022-01-15"
+    time: "11:00"
+    gate: 3A
+    boarding: "10:30"
+az:
+  storage:
+    # container names in storage account
+    dvc: dvc
+    datadir: rawdata

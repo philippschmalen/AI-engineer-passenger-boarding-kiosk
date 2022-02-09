@@ -1,5 +1,10 @@
 {
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.defaultInterpreterPath": "C:\\miniconda3\\envs\\az-sandbox\\python.exe",
-    "cornflakes.linter.executablePath": "C:\\miniconda3\\envs\\az-sandbox\\Scripts\\flake8.exe"
+    "cornflakes.linter.executablePath": "C:\\miniconda3\\envs\\az-sandbox\\Scripts\\flake8.exe",
+    "python.formatting.blackPath": "C:\\miniconda3\\envs\\az-sandbox\\Scripts\\black.exe",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "79"
+    ]
 }
