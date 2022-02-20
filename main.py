@@ -28,7 +28,6 @@ if __name__ == "__main__":
 
     # ID DOCUMENTS
     input_img_id = load_img(filepath="data/raw/id_amybennett.jpg")
-    # get id details
     dict_id = get_id_details(form_recognizer_client, input_img_id)
     print(dict_id)
 
@@ -44,3 +43,5 @@ if __name__ == "__main__":
         get_url=get_url, apikey=AZURE_FORM_RECOGNIZER_KEY
     )
     print(dict_boardingpass)
+
+    #
