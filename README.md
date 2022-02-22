@@ -2,9 +2,6 @@
 
 Building a fully automated passenger boarding kiosk with `Azure cognitive services`. I apply best practices with **data version control** with `DVC`, **infrastructure as code** with `Terraform` and ensure code quality with `flake8`, `black` and `pre-commit`.
 
-## TODO
-
-- [ ] ID card image
 
 ---
 
@@ -30,7 +27,53 @@ The data comprises the following areas:
 
 ---
 
-## Get started
+
+## Submission checklist
+
+- [x] list of python libraries: see `conda.yaml`
+- [x] match faces from video and id card: see  `src.utils_data.compare_faces()`
+- [x] validation for all passengers: run `main.py` with the data stored in `data/raw/boarding_{name}.pdf`, `data/raw/id_{name}.jpg`, `data/raw/lighter_test_images/lighter_test_set_1of5.jpg`, `data/video/thumbnail/ps-{number}.jpg`
+Here is an example output:
+```
+...
+2022-02-22 20:58:26,671 - root - INFO - SUCCESS. Return boardingpass details as dict.
+2022-02-22 20:58:27,357 - root - INFO - Faces:
+	Reference: f7e625aa-48da-4f46-9d7a-a0e50734d5c9
+	Comparing: 1ab47702-6ab8-4fdd-a0db-322d357d0ce7
+	identical: False
+	confidence: 0.08906
+2022-02-22 20:58:27,408 - root - INFO - Created/loaded project 220216-184815.
+2022-02-22 20:58:27,410 - root - INFO - Detecting lighters
+2022-02-22 20:58:27,734 - root - INFO - Prediction probabilities: {'lighter': [0.2125389, 0.16957963, 0.102686286]}
+2022-02-22 20:58:27,740 - root - INFO - Validated: Scott Harrington, 2011-12-26
+2022-02-22 20:58:27,743 - root - INFO - Set ['valid_dob', 'valid_name'] True.
+2022-02-22 20:58:27,747 - root - INFO - Boarding pass is valid.
+2022-02-22 20:58:27,749 - root - INFO - Set valid_boardingpass True.
+2022-02-22 20:58:27,750 - root - INFO - Lighter detected with probability 0.2125389
+2022-02-22 20:58:27,754 - root - INFO - Saved validated manifest for Scott Harrington to data/validated/flight_manifest_0.csv
+2022-02-22 20:58:27,756 - root - INFO - Flight manifest is valid.
+
+        Dear Scott Harrington,
+        You are welcome to flight LH-398 departing at 11:00 from San Francisco to Chicago.
+        Your seat number is 14A, and it is confirmed.
+        Your identity is verified so please board the plane.
+
+
+        CAUTION
+        We have found a prohibited item in your carry-on baggage, and it is flagged for removal. Please remove it.
+```
+- [x] See all validation results:
+
+![](img/validation_results.png)
+
+- [x] see error message above
+- [x] the validated flight manifest is stored in `./flight_manifest_validated.csv`
+- [x] Service consumption report not feasible to get since the Azure account is administered by my employer. Thanks for your understanding.
+
+
+---
+
+## Get started (developer)
 
 
 Ensure the following: Azure account, `terraform` (added to PATH), `azure cli`, `Anaconda/Miniconda`, successfully logged into Azure with `az login`.

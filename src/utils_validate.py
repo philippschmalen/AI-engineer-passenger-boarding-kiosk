@@ -164,7 +164,7 @@ def pipeline_validate(
         update_manifest(flight_manifest, idx, "valid_luggage")
 
     flight_manifest.loc[idx].to_csv(
-        filepath := f"data/validated/flight_manifest_{idx[0]}.csv"
+        filepath := f"data/validated/flight_manifest_{idx[0]}.csv", index=False
     )
 
     logging.info(
@@ -172,3 +172,44 @@ def pipeline_validate(
     )
 
     return flight_manifest.loc[idx]
+
+
+def message_to_passenger(passenger_manifest) -> None:
+    df = passenger_manifest.iloc[0]
+
+    if (df.filter(like="valid") * 1).sum() >= 3:
+        logging.info("Flight manifest is valid.")
+        print(
+            f"""
+        Dear {df.loc['name']},
+        You are welcome to flight {df.loc['flight_number']} departing at {df.loc['flight_time']} from San Francisco to Chicago.
+        Your seat number is {df.loc['seat']}, and it is confirmed.
+        Your identity is verified so please board the plane.
+        """
+        )
+
+    if (df.filter(like="valid") * 1).sum() < 3:
+        print(
+            """
+        Dear Sir/Madam,
+        Some of the information in your boarding pass does not match the flight manifest data, so you cannot board the plane.
+        Please see a customer service representative.
+        """
+        )
+
+    if not df.loc["valid_luggage"]:
+        print(
+            """
+        CAUTION
+        We have found a prohibited item in your carry-on baggage, and it is flagged for removal. Please remove it.
+        """
+        )
+
+    if not df.loc["valid_boardingpass"]:
+        print(
+            """
+        Dear Sir/Madam,
+        Some of the information on your ID card does not match the flight manifest data, so you cannot board the plane.
+        Please see a customer service representative.
+        """
+        )

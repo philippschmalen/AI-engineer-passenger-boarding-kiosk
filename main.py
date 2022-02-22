@@ -5,13 +5,12 @@ Validation pipeline that checks
 3. Face from video
 4. Lighter
 """
-import logging
+
 from dotenv import load_dotenv
 from azure.ai.formrecognizer import FormRecognizerClient
 from azure.cognitiveservices.vision.face import FaceClient
 from azure.core.credentials import AzureKeyCredential
 from msrest.authentication import CognitiveServicesCredentials
-from video_indexer import VideoIndexer
 from azure.cognitiveservices.vision.customvision.training import (
     CustomVisionTrainingClient,
 )
@@ -27,10 +26,10 @@ from src.utils_data import get_flight_manifest
 from src.utils_data import get_url_boardingpass
 from src.utils_data import get_dict_boardingpass
 from src.utils_data import compare_faces
-from src.utils_data import get_thumbnails_from_video
-from src.utils_lighterdetection import pipeline_training_lighterdetection
 from src.utils_lighterdetection import pipeline_prediction_lighterdetection
 from src.utils_validate import pipeline_validate
+from src.utils_validate import message_to_passenger
+import logging
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,7 +45,7 @@ def main():
     AZURE_FORM_RECOGNIZER_ENDPOINT = os.getenv("AZURE_FORM_RECOGNIZER_ENDPOINT")
     AZURE_FORM_RECOGNIZER_MODEL_ID = os.getenv("AZURE_FORM_RECOGNIZER_MODEL_ID")
     AZURE_FORM_RECOGNIZER_KEY = os.getenv("AZURE_FORM_RECOGNIZER_KEY")
-    VIDEO_ID = os.getenv("AZURE_VIDEO_ANALYZER_VIDEO_ID")
+    # VIDEO_ID = os.getenv("AZURE_VIDEO_ANALYZER_VIDEO_ID")
 
     AZURE_FACE_RECOGNITION_ENDPOINT = os.getenv("AZURE_FACE_RECOGNITION_ENDPOINT")
     AZURE_FACE_RECOGNITION_KEY = os.getenv("AZURE_FACE_RECOGNITION_KEY")
@@ -63,11 +62,11 @@ def main():
         AzureKeyCredential(AZURE_FORM_RECOGNIZER_KEY),
     )
 
-    vi = VideoIndexer(
-        vi_subscription_key=os.getenv("AZURE_VIDEO_ANALYZER_SUBSCRIPTION"),
-        vi_location=os.getenv("AZURE_VIDEO_ANALYZER_LOCATION"),
-        vi_account_id=os.getenv("AZURE_VIDEO_ANALYZER_ACCOUNT_ID"),
-    )
+    # vi = VideoIndexer(
+    #     vi_subscription_key=os.getenv("AZURE_VIDEO_ANALYZER_SUBSCRIPTION"),
+    #     vi_location=os.getenv("AZURE_VIDEO_ANALYZER_LOCATION"),
+    #     vi_account_id=os.getenv("AZURE_VIDEO_ANALYZER_ACCOUNT_ID"),
+    # )
 
     face_client = FaceClient(
         AZURE_FACE_RECOGNITION_ENDPOINT,
@@ -92,11 +91,13 @@ def main():
     )
     images_boarding = glob(os.path.join("data/raw", "boarding_*.pdf"))
     images_id = glob(os.path.join("data/raw", "id_*.jpg"))
+    images_thumb = glob(os.path.join("data/video/thumbnail", "ps-*.jpg"))
 
     for i in range(len(images_boarding)):
         img_boarding = load_img(images_boarding[i])
         img_id = load_img(images_id[i])
         img_lighter = load_img(images_lighter[i])
+        img_thumb = load_img(images_thumb[0])
 
         # ID
         dict_id = get_id_details(form_recognizer_client, img_id)
@@ -113,20 +114,11 @@ def main():
         )
 
         # video
-        video_info = vi.get_video_info(video_id=VIDEO_ID)
-        thumbnails = get_thumbnails_from_video(vi, video_info)
         dict_face = compare_faces(
-            face_client, img_reference=img_id, img_compare=thumbnails[0]
+            face_client, img_reference=img_id, img_compare=img_thumb
         )
 
         # lighter detection
-        pipeline_training_lighterdetection(
-            trainer,
-            AZURE_CUSTOMVISION_PROJECTNAME,
-            AZURE_CUSTOMVISION_PUBLISHNAME,
-            pipeline_training_lighterdetection,
-        )
-
         dict_lighter = pipeline_prediction_lighterdetection(
             trainer,
             predictor,
@@ -135,13 +127,16 @@ def main():
             img_lighter,
         )
 
-        pipeline_validate(
+        # validate
+        passenger_manifest = pipeline_validate(
             flight_manifest,
             dict_id,
             dict_boardingpass,
             dict_face,
             dict_lighter,
         )
+
+        message_to_passenger(passenger_manifest)
 
 
 if __name__ == "__main__":

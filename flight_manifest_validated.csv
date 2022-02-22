@@ -1,0 +1,6 @@
+flight_number,flight_date,flight_time,origin,destination,name,sex,birthdate,seat,valid_dob,valid_person,valid_luggage,valid_name,valid_boardingpass
+LH-398,2022-01-15,11:00,Frankfurt,Salzburg,Scott Harrington,M,2011-12-26,14A,True,False,False,True,True
+LH-398,2022-01-15,11:00,Frankfurt,Salzburg,Kevin Lee,M,1935-02-22,4A,True,False,False,True,True
+LH-398,2022-01-15,11:00,Frankfurt,Salzburg,Amy Bennett,F,1963-02-22,2E,True,False,False,True,True
+LH-398,2022-01-15,11:00,Frankfurt,Salzburg,Jason Lewis,M,1950-11-09,9B,True,False,True,True,True
+LH-398,2022-01-15,11:00,Frankfurt,Salzburg,Philipp Schmalen,M,1990-09-02,24F,True,True,False,True,True
