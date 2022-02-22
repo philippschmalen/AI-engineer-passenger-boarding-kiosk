@@ -3,6 +3,7 @@ from requests import get, post
 import logging
 import yaml
 import time
+from io import BytesIO
 import pandas as pd
 import numpy as np
 from faker import Faker
@@ -28,29 +29,31 @@ def get_data():
 
     # Faker to generate data
     fake = Faker()
-    Faker.seed(config["data"]["faker"]["seed"])
+    fake.seed_instance(config["data"]["faker"]["seed"])
     n_records = config["data"]["n_records"]
     passengers = [fake.simple_profile() for _ in range(n_records)]
     validations = [False for _ in range(n_records)]
-    flight_date = fake.date_time_this_year()
 
-    return pd.DataFrame(
+    df = pd.DataFrame(
         {
             # flight data
-            "flight_number": np.repeat(fake.bothify("LH-###"), n_records),
-            "flight_date": np.repeat(flight_date.date(), n_records),
-            "flight_time": np.repeat(flight_date.time(), n_records),
-            "origin": np.repeat(config["data"]["origin"], n_records),
-            "destination": np.repeat(config["data"]["destination"], n_records),
+            "flight_number": np.repeat(config["data"]["flight"]["number"], n_records),
+            "flight_date": np.repeat(config["data"]["flight"]["date"], n_records),
+            "flight_time": np.repeat(config["data"]["flight"]["time"], n_records),
+            "origin": np.repeat(config["data"]["flight"]["origin"], n_records),
+            "destination": np.repeat(
+                config["data"]["flight"]["destination"], n_records
+            ),
             # passenger data
             "name": [p.get("name") for p in passengers],
             "sex": [p.get("sex") for p in passengers],
-            "birthdate": [p.get("birthdate") for p in passengers],
+            "birthdate": [p.get("birthdate").strftime("%m/%d/%Y") for p in passengers],
             "seat": [
                 str(fake.random_int(min=1, max=25))
                 + fake.bothify("?", letters="ABCDEF")
                 for _ in range(n_records)
             ],
+            # validation
             "valid_dob": validations,
             "valid_person": validations,
             "valid_luggage": validations,
@@ -59,14 +62,29 @@ def get_data():
         }
     )
 
+    # replace name Benjamin Clark with my
+    df.loc[df["name"] == "Benjamin Clark", "name"] = "Philipp Schmalen"
+    df.loc[df["name"] == "Philipp Schmalen", "birthdate"] = "10/03/1961"
 
-def load_img(filepath: str) -> bytes:
+    return df
+
+
+def load_img(filepath: str, as_BufferedReader: bool = False) -> bytes:
     "Returns image as byte array"
 
     logging.info(f"Loading {filepath}")
 
     with open(filepath, "rb") as image_file:
-        return image_file.read()
+        if as_BufferedReader:
+            return image_file
+        else:
+            return image_file.read()
+
+
+def get_flight_manifest(
+    filepath: str = "data/raw/flight_manifest.csv",
+) -> pd.DataFrame:
+    return pd.read_csv(filepath, parse_dates=["flight_date", "birthdate"])
 
 
 def get_id_details(
@@ -214,3 +232,46 @@ def get_dict_boardingpass(
                 quit()
             else:
                 continue
+
+
+def get_thumbnails_from_video(vi_client, video_info: dict) -> list:
+
+    images = [
+        vi_client.get_thumbnail_from_video_indexer(video_info["id"], i["id"])
+        for i in video_info["videos"][0]["insights"]["faces"][0]["thumbnails"]
+        if "fileName" in i and "id" in i
+    ]
+
+    logging.info(f"Found {len(images)} thumbnails for video {video_info['id']}")
+
+    return images
+
+
+def compare_faces(face_client, img_reference: bytes, img_compare: bytes) -> dict:
+
+    face_reference = face_client.face.detect_with_stream(
+        BytesIO(img_reference), detection_model="detection_03"
+    )
+
+    face_compare = face_client.face.detect_with_stream(
+        BytesIO(img_compare), detection_model="detection_03"
+    )
+
+    if face_reference is None or face_compare is None:
+        logging.warning("No face detected in reference or compare image")
+        return None
+    else:
+        face_verify = face_client.face.verify_face_to_face(
+            face_reference[0].face_id, face_compare[0].face_id
+        )
+
+        logging.info(
+            f"Faces:\n\tReference: {face_reference[0].face_id}\n\tComparing: {face_compare[0].face_id}\n\tidentical: {face_verify.is_identical}\n\tconfidence: {face_verify.confidence}"
+        )
+
+        return {
+            "faceid_reference": face_reference[0].face_id,
+            "faceid_comparison": face_compare[0].face_id,
+            "face_is_identical": face_verify.is_identical,
+            "confidence": face_verify.confidence,
+        }

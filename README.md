@@ -4,7 +4,7 @@ Building a fully automated passenger boarding kiosk with `Azure cognitive servic
 
 ## TODO
 
-- [ ]
+- [ ] ID card image
 
 ---
 
@@ -175,6 +175,23 @@ Here is how the output looks like with an example boarding pass:
 ![](img/boardingpass_formrecognizer_match.png)
 
 
+
+### Face recognition
+
+#### Prerequisites
+
+
+1. Create a `video analyzer for media` in the azure console. Terraform does not support it yet, as of writing (https://github.com/hashicorp/terraform-provider-azurerm/issues/14767)
+2. Get the [account ID](https://docs.microsoft.com/en-us/azure/azure-video-analyzer/video-analyzer-for-media-docs/video-indexer-use-apis#account-id) and copy into `.env` as `AZURE_VIDEO_ANALYZER_ACCOUNT_ID`
+3. Upload a video to `azure video analyzer for media` (https://www.videoindexer.ai). Get the `video id` by selecting the video and copying the last part of thr URL, such as `https://www.videoindexer.ai/accounts/[account id]/videos/[video-id]`.
+
+
+
+Following the sample code on https://github.com/Azure-Samples/cognitive-services-quickstart-code/blob/master/python/Face/FaceQuickstart.py
+
+
+
+
 ---
 
 ## Tech
@@ -215,5 +232,24 @@ conda env export > conda.yaml --from-history
 
 ## Extensions
 
-- [ ] add tests
+- [ ] add unit tests
+- [ ] add integration tests
+- [ ] add test coverage
+- [ ] make architecture diagram
 - [ ] add github action
+- [ ] use pydantic to validate
+- [ ] refactor `train_person_model()` into `create_person_group()` and `train_person_model()`
+- [ ] handle multiple matches of Id name: Insert booking code
+- [ ] refactor: person class that holds attributes
+- [ ] refactor: boarding pass `get_url` into OCR pipeline
+
+
+## Flight manifest reference
+
+|    | flight_number   | flight_date   | flight_time   | origin    | destination   | name             | sex   | birthdate   | seat   | valid_dob   | valid_person   | valid_luggage   | valid_name   | valid_boardingpass   |
+|---:|:----------------|:--------------|:--------------|:----------|:--------------|:-----------------|:------|:------------|:-------|:------------|:---------------|:----------------|:-------------|:---------------------|
+|  0 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Scott Harrington | M     | 12/26/2011  | 14A    | False       | False          | False           | False        | False                |
+|  1 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Kevin Lee        | M     | 02/22/1935  | 4A     | False       | False          | False           | False        | False                |
+|  2 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Amy Bennett      | F     | 02/22/1963  | 2E     | False       | False          | False           | False        | False                |
+|  3 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Jason Lewis      | M     | 11/09/1950  | 9B     | False       | False          | False           | False        | False                |
+|  4 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Philipp Schmalen | M     | 09/02/1990  | 24F    | False       | False          | False           | False        | False                |

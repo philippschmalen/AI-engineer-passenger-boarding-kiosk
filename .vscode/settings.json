@@ -6,5 +6,6 @@
     "python.formatting.blackArgs": [
         "--line-length",
         "79"
-    ]
+    ],
+    "python.linting.mypyPath": "C:\\miniconda3\\envs\\az-sandbox\\Scripts\\mypy.exe"
 }

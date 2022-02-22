@@ -68,21 +68,37 @@ resource "azurerm_storage_container" "model" {
 }
 
 
-# upload data/raw to data/
-resource "null_resource" "upload-data-raw" {
-    provisioner "local-exec" {
-        command = "az storage blob upload-batch --account-name ${azurerm_storage_account.storage.name} --destination ${azurerm_storage_container.data.name} --source data/raw"
-        #
-    }
+# container: video
+resource "azurerm_storage_container" "video" {
+  name                  = "video"
+  storage_account_name  = azurerm_storage_account.storage.name
+  container_access_type = "private"
 }
 
 
 # upload data/raw to data/
+resource "null_resource" "upload-data-raw" {
+    provisioner "local-exec" {
+        command = "az storage blob upload-batch --account-name ${azurerm_storage_account.storage.name} --destination ${azurerm_storage_container.data.name} --source data/raw"
+    }
+}
+
+
+# upload data/model to model/
 resource "null_resource" "upload-model" {
     provisioner "local-exec" {
         command = "az storage blob upload-batch --account-name ${azurerm_storage_account.storage.name} --destination ${azurerm_storage_container.model.name} --source data/model"
     }
 }
+
+
+# upload data/video to video/
+resource "null_resource" "upload-video" {
+    provisioner "local-exec" {
+        command = "az storage blob upload-batch --account-name ${azurerm_storage_account.storage.name} --destination ${azurerm_storage_container.model.name} --source data/video"
+    }
+}
+
 
 
 # face recognition
@@ -170,11 +186,44 @@ resource "azurerm_video_analyzer" "ca-video" {
   }
 
   tags = {
-    environment = "staging"
+    Owner   = "Philipp Schmalen"
+    DueDate = "2022-03-01"
   }
 
   depends_on = [
     azurerm_role_assignment.contributor,
     azurerm_role_assignment.reader,
   ]
+}
+
+
+# custom vision: lighterdetection training
+resource "azurerm_cognitive_account" "lighter-detection-train" {
+  name                = "lighterdetection-train"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  kind                = "CustomVision.Training"
+
+  sku_name = "S0"
+
+  tags = {
+    Owner   = "Philipp Schmalen"
+    DueDate = "2022-03-01"
+  }
+}
+
+
+# custom vision: lighterdetection prediction
+resource "azurerm_cognitive_account" "lighter-detection-pred" {
+  name                = "lighterdetection-pred"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  kind                = "CustomVision.Prediction"
+
+  sku_name = "S0"
+
+  tags = {
+    Owner   = "Philipp Schmalen"
+    DueDate = "2022-03-01"
+  }
 }

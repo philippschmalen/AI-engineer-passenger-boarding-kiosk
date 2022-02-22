@@ -14,8 +14,8 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v0.931"
-    hooks:
-      - id: mypy
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: "v0.931"
+  #   hooks:
+  #     - id: mypy
 exclude: src/0_ps_exploration
