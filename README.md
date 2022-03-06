@@ -7,15 +7,32 @@ Building a fully automated passenger boarding kiosk with `Azure cognitive servic
 
 ## Project brief
 
-> **Goal:** Build an AI-powered boarding kiosk for a fictional airline.
+### **Problem definition (Objective)**
 
-![](img/process-overview.png)
-
-**Key results**
+Build an AI-powered boarding kiosk for a fictional airline.
 
 ![](img/kiosk-outcome.png)
 
-**Data**
+### **Solution strategy (Key results)**
+
+1. Load image & extract labeled text from ID card
+2. Extract image from ID card
+3. Load image & extract labeled text from passenger boarding pass
+4. Load video & extract face images as thumbnails from video
+5. Compare face from video with extracted ID photo
+6. Compare ID details (name, dob) with flight manifest
+7. Compare boarding pass details (seat, flight time, name) with flight manifest
+8. Run object detection for lighter on image of luggage
+9. Show message to passenger depending on validations
+
+
+![](img/process-overview.png)
+
+
+
+### **Data**
+
+The submission dataset is found in `./data_projectsubmit`. I excluded
 
 The data comprises the following areas:
 
@@ -24,6 +41,40 @@ The data comprises the following areas:
 * photos taken from https://this-person-does-not-exist.com/en
 
 ![](img/data-overview.png)
+
+
+### **Cognitive services (Architecture)**
+
+![](img/boardingkiosk-data-flow.drawio.png)
+
+![](img/resource-group-visualizer.png)
+
+### **Data validation**
+
+The `main.py` script runs `pipeline_validate` which takes the prediction outputs from each AI component (cognitive service), checks it against `data/raw/flight_manifest.csv` and writes the validation result in `f"data/validated/flight_manifest_{idx[0]}.csv"`, where `idx[0]` refers to the case id in chronological order.
+
+```python
+# validate
+passenger_manifest = pipeline_validate(
+    flight_manifest,
+    dict_id,
+    dict_boardingpass,
+    dict_face,
+    dict_lighter,
+)
+```
+
+For **lighter detection** the model performance was not sufficient to detect lighters with high certainty. Since lighters count as a dangerous good in aviation, we need a low false negative rate and disregard the passenger experience. Safety is prioritized over comfort. Therefore, I chose a conservative `detect_threshold=0.2` in the `has_no_lighter` function that is part of `pipeline_validate`.
+
+### Usage reports
+
+Screenshots of the Service Consumption Report showing the usage pattern and performance of each Azure cognitive resource.
+
+![](img/report-face.png)
+![](img/report-formrecognizer.png)
+![](img/report-lighterpred.png)
+![](img/report-storage.png)
+![](img/report-videoanalyzer.png)
 
 ---
 
@@ -49,7 +100,7 @@ Here is an example output:
 2022-02-22 20:58:27,743 - root - INFO - Set ['valid_dob', 'valid_name'] True.
 2022-02-22 20:58:27,747 - root - INFO - Boarding pass is valid.
 2022-02-22 20:58:27,749 - root - INFO - Set valid_boardingpass True.
-2022-02-22 20:58:27,750 - root - INFO - Lighter detected with probability 0.2125389
+202 2-02-22 20:58:27,750 - root - INFO - Lighter detected with probability 0.2125389
 2022-02-22 20:58:27,754 - root - INFO - Saved validated manifest for Scott Harrington to data/validated/flight_manifest_0.csv
 2022-02-22 20:58:27,756 - root - INFO - Flight manifest is valid.
 
