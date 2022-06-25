@@ -347,3 +347,22 @@ conda env export > conda.yaml --from-history
 |  2 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Amy Bennett      | F     | 02/22/1963  | 2E     | False       | False          | False           | False        | False                |
 |  3 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Jason Lewis      | M     | 11/09/1950  | 9B     | False       | False          | False           | False        | False                |
 |  4 | LH-398          | 2022-01-15    | 11:00         | Frankfurt | Salzburg      | Philipp Schmalen | M     | 09/02/1990  | 24F    | False       | False          | False           | False        | False                |
+
+
+---
+
+## Final reflections
+
+The project requires that different azure services interplay nicely. It exemplifies how azure services can be creatively combined to solve a real-world problem.
+
+The goal was to build an automated passenger boarding kiosk. A passenger uses it previous to boarding a plane. Nevertheless, it should be more seen as a proof-of-concept and lacks several steps towards going to production.
+
+Heres is a non-exclusive list of concluding thoughts and missing elements to productionize the solution:
+
+* Checking of dangerous goods cannot be verified at boarding, but at the security check. Additionally, the baggage images taken from passengers themselves will be noisy due to lack of standardization. The object detection then will output too many false positives which downgrades customer experience.
+* Check regulations regarding boarding. Regulators possibly require a high accuracy to identify passengers.
+* Design the customer journey around the automated boarding kiosk to minimze user effort, keep low room for error and optimize the boarding flow.
+* Build CICD with testing.
+* Automatically pull flight manifest shortly before boarding.
+* Train form recognizer on 80-90% of all available country specific id-cards. Edge cases should be marked and handled manually.
+* Automate the video processing and thumbnail generation.
